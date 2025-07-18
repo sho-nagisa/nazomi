@@ -5,26 +5,33 @@ services:
     build: ./backend
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8000:8000"
-    volumes:
-      - ./backend:/app
-    env_file:
-      - .env              # ルートに配置した秘密キー等
-    environment:
-      PYTHONUNBUFFERED: "1"
+      
+"8000:8000"
+  volumes:
+./backend:/app
+spacy_models:/app/.spacy  # spaCyモデルの永続化
+env_file:
+backend/.env              # ルートに配置した秘密キー等
+environment:
+  PYTHONUNBUFFERED: "1"
+  SPACY_DATA_PATH: "/app/.spacy"
 
   frontend:
     build: ./frontend
     command: npm run dev -- --host
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app          # ソースコード共有
-      - node_modules:/app/node_modules  # Linux 用 node_modules を保持
-    env_file:
-      - ./frontend/.env          # VITE_ 付き公開キーなど
-    environment:
-      CHOKIDAR_USEPOLLING: "true"  # Win/WSL のファイル監視安定化
+      
+"5173:5173"
+  volumes:
+./frontend:/app          # ソースコード共有
+node_modules:/app/node_modules  # Linux 用 node_modules を保持
+envfile:
+  
+./frontend/.env          # VITE
+ 付き公開キーなど
+environment:
+  CHOKIDAR_USEPOLLING: "true"  # Win/WSL のファイル監視安定化
 
 volumes:
   node_modules:                  # named volume 定義
+  spacy_models:                  # spaCyモデル用

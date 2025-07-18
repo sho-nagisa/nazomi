@@ -1,13 +1,33 @@
 # Python
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
+*.pyd
 
-# Node
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables
+backend/.env
+frontend/.env
+
+# Node.js
 node_modules/
 
-# Env
-.env*
-frontend/.env
+# Frontend Build
+frontend/dist/
+frontend/build/
+
+# Testing
+.pytest_cache/
+
+# spaCy
+.spacy/
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
