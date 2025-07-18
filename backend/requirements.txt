@@ -1,4 +1,22 @@
-fastapi 
-uvicorn[standard] 
-supabase 
-python-dotenv 
+# 🔧 FastAPI + サーバー
+fastapi
+uvicorn[standard]
+
+# 🔐 認証関連
+python-jose[cryptography]  # JWTトークン検証
+python-dotenv              # .env 読み込み
+
+# 🛢️ PostgreSQL + ORM
+sqlalchemy
+asyncpg                   # PostgreSQL用の非同期ドライバ（SQLAlchemy 2.0+用）
+
+# 📡 Supabase API クライアント
+supabase-py
+
+# 🧠 共感ワード抽出（MeCab）
+mecab-python3             # MeCab本体のPythonバインディング
+unidic-lite               # 形態素解析用辞書（軽量）
+
+# 🧪 その他ユーティリティ（任意）
+httpx                     # 非同期HTTPリクエスト（Supabase REST APIなどに使える）
+pydantic                  # 型定義（FastAPIに同梱だが明示）
