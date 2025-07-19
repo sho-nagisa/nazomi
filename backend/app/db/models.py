@@ -32,8 +32,8 @@ class MatchTable(Base):
     __tablename__ = "match_table"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id_1 = Column(String, nullable=False)
-    user_id_2 = Column(String, nullable=False)
+    room_id = Column(String, nullable=False)
+    user_id = Column(String, nullable=False)
     matched_at = Column(DateTime, default=datetime.utcnow)
 
 class Message(Base):
@@ -54,3 +54,16 @@ class ChatRoom(Base):
     participants = Column(JSON, nullable=False)  # 例: ["user1", "user2", ...]
     empathy_words = Column(JSON, nullable=True)
     expires_at = Column(DateTime, nullable=False)
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    type = Column(String)
+    anonymous_token = Column(String)
+    title = Column(String)
+    message = Column(Text)
+    data = Column(JSON)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime, nullable=True)

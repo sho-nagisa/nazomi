@@ -9,6 +9,14 @@ class ChatMessageBase(BaseModel):
 class ChatMessageCreate(ChatMessageBase):
     pass
 
+class ChatMessageSchema(BaseModel):
+    chat_room_id: str
+    sender_token: str
+    message: str
+    timestamp: Optional[datetime] = None  # クライアントで付けるならOptional
+
+    class Config:
+        from_attributes = True  # 旧: orm_mode = True
 class ChatMessageResponse(ChatMessageBase):
     id: str
     chat_id: str

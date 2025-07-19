@@ -1,15 +1,16 @@
-from sqlalchemy.orm import Session
-from app.db.models import Diary
-from app.db.models import ChatRoom  # ← モデルの定義をインポート
-from app.schemas.chat_room import ChatRoomCreate  # ← スキーマをインポート
-from app.schemas.match import MatchCreate
-from app.db.models import MatchTable
-from app.schemas.message import MessageCreate
-from app.db.models import Message
-from app.schemas.diary import DiaryCreate
-from app.core.security import encryption_service
-from app.services.nlp_service import nlp_service
+from datetime import datetime, timedelta
 import asyncio
+
+from sqlalchemy.orm import Session
+
+from app.core.security import encryption_service
+from app.db.models import ChatRoom, Diary, MatchTable, Message
+from app.schemas.chat_room import ChatRoomCreate
+from app.schemas.diary import DiaryCreate
+from app.schemas.match import MatchCreate
+from app.schemas.message import MessageCreate
+from app.services.nlp_service import nlp_service
+
 
 async def create_diary(db: Session, diary: DiaryCreate) -> Diary:
     """日記を作成（暗号化して保存）"""
@@ -147,3 +148,32 @@ def create_message(db: Session, message: MessageCreate) -> Message:
 
 def get_messages_by_match(db: Session, match_id: str) -> list[Message]:
     return db.query(Message).filter(Message.match_id == match_id).order_by(Message.send_at.asc()).all()
+
+def create_notification(db: Session, user_token: str, message: str):
+    notif = models.Notification(user_token=user_token, message=message)
+    db.add(notif)
+    db.commit()
+    db.refresh(notif)
+    return notif
+
+def get_notifications(db: Session, user_token: str):
+    return db.query(models.Notification).filter(models.Notification.user_token == user_token).all()
+
+def get_chat_room_participants(db: Session, room_id: int) -> list[str]:
+    room = db.query(models.ChatRoom).filter(models.ChatRoom.id == room_id).first()
+    if room and room.participants:
+        return room.participants  # JSONBとしてリスト扱いされる
+    return []
+
+def get_chat_room_participants(db: Session, room_id: int) -> list[str]:
+    room = db.query(models.ChatRoom).filter(models.ChatRoom.id == room_id).first()
+    if room and room.participants:
+        return room.participants  # JSONB型でlistのはず
+    return []
+
+def get_rooms_expiring_at(db: Session, expires_at_time: datetime):
+    return (
+        db.query(models.ChatRoom)
+        .filter(models.ChatRoom.expires_at.between(expires_at_time - timedelta(minutes=1), expires_at_time + timedelta(minutes=1)))
+        .all()
+    )
