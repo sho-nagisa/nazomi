@@ -74,12 +74,17 @@ function AnimatedWordCloud({ empathyWords }: { empathyWords: EmpathyWord[] }) {
   );
 }
 
-function HeartMatchingButton({ onClick }: { onClick: () => void }) {
+function HeartMatchingButton({ onClick, disabled = false }: { onClick: () => void; disabled?: boolean }) {
   return (
     <div className="relative">
       <button
         onClick={onClick}
-        className="group relative overflow-hidden bg-gradient-to-r from-[#EC4899] via-[#F59E0B] to-[#EF4444] hover:from-[#BE185D] hover:via-[#D97706] hover:to-[#DC2626] transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-2xl rounded-full p-4"
+        disabled={disabled}
+        className={`group relative overflow-hidden transition-all duration-300 transform shadow-lg rounded-full p-4 ${
+          disabled
+            ? 'bg-gray-400 cursor-not-allowed'
+            : 'bg-gradient-to-r from-[#EC4899] via-[#F59E0B] to-[#EF4444] hover:from-[#BE185D] hover:via-[#D97706] hover:to-[#DC2626] hover:scale-105 active:scale-95 hover:shadow-2xl'
+        }`}
         aria-label="マッチング開始"
       >
         {/* Heart Shape */}
@@ -173,6 +178,8 @@ export default function EmotionAnalysis({ onBack }: { onBack: () => void }) {
   const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [empathyWords, setEmpathyWords] = useState<EmpathyWord[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchingResult, setMatchingResult] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchEmpathyWords = async () => {
@@ -201,11 +208,28 @@ export default function EmotionAnalysis({ onBack }: { onBack: () => void }) {
 
   const handleMatching = async () => {
     try {
+      setIsMatching(true);
+      setMatchingResult(null);
       console.log('マッチング開始');
-      await apiClient.runMatching();
-      // マッチング処理後の処理をここに追加
+      
+      const response = await apiClient.runMatching();
+      console.log('マッチング結果:', response);
+      
+      if (response.result && response.result.success) {
+        const roomCount = response.result.results?.length || 0;
+        if (roomCount > 0) {
+          setMatchingResult(`🎉 マッチング成功！ ${roomCount}件のチャットルームが作成されました`);
+        } else {
+          setMatchingResult('🤔 現在マッチングできる相手が見つかりませんでした。しばらく待ってから再試行してください。');
+        }
+      } else {
+        setMatchingResult('❌ マッチング処理に失敗しました。しばらく待ってから再試行してください。');
+      }
     } catch (err) {
       console.error('マッチングエラー:', err);
+      setMatchingResult('❌ マッチング処理中にエラーが発生しました。');
+    } finally {
+      setIsMatching(false);
     }
   };
 
@@ -242,8 +266,27 @@ export default function EmotionAnalysis({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         
-        <div className="flex justify-center">
-          <HeartMatchingButton onClick={handleMatching} />
+        <div className="flex flex-col items-center gap-4">
+          {matchingResult && (
+            <div className={`w-full max-w-md p-4 rounded-lg text-center text-sm ${
+              matchingResult.includes('🎉') 
+                ? 'bg-green-50 border border-green-200 text-green-700' 
+                : matchingResult.includes('🤔')
+                ? 'bg-yellow-50 border border-yellow-200 text-yellow-700'
+                : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
+              {matchingResult}
+            </div>
+          )}
+          
+          <div className="relative">
+            <HeartMatchingButton onClick={handleMatching} disabled={isMatching} />
+            {isMatching && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-full">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#EC4899] border-t-transparent"></div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

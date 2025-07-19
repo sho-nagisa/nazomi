@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'http://localhost:8000';
 
 export interface DiaryCreate {
   content: string;
@@ -169,8 +169,35 @@ class ApiClient {
   async sendMessage(roomId: string, content: string): Promise<ChatMessage> {
     return this.request<ChatMessage>(`/api/chat-rooms/${roomId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ 
+        content
+      }),
     });
+  }
+
+  private getAnonymousToken(): string {
+    // Cookieから匿名トークンを取得
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === 'anonymous_token') {
+        return value;
+      }
+    }
+    // トークンが見つからない場合は新しいトークンを生成
+    const newToken = this.generateAnonymousToken();
+    document.cookie = `anonymous_token=${newToken}; path=/; max-age=86400`;
+    return newToken;
+  }
+
+  private generateAnonymousToken(): string {
+    // 32文字のランダムトークンを生成
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
   }
 
   // 通知関連API

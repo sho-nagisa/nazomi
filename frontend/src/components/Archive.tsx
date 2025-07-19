@@ -1,5 +1,8 @@
+import React from "react";
 import svgPaths from "../../imports/svg-56hwv34ena";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { DiaryService } from "../services/diaryService";
+import { DiaryEntry as SupabaseDiaryEntry } from "../lib/supabase";
 
 interface DiaryEntry {
   id: string;
@@ -229,33 +232,143 @@ function MonthHeader({ month }: { month: string }) {
 }
 
 export default function Archive({ onBack }: { onBack: () => void }) {
-  const months = ['2025年1月', '2024年12月', '2024年11月', '2024年10月'];
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  // 2024年10月から2027年12月までの月を動的に生成
+  const generateMonths = (): string[] => {
+    const months: string[] = [];
+    for (let year = 2024; year <= 2027; year++) {
+      for (let month = 1; month <= 12; month++) {
+        // 2024年は10月から開始
+        if (year === 2024 && month < 10) continue;
+        months.push(`${year}年${month}月`);
+      }
+    }
+    return months;
+  };
+
+  const months = generateMonths();
   
-  // Mock data - 実際のアプリでは API から取得
-  const mockDiaryData: Record<string, DiaryEntry[]> = {
-    '2025年1月': [
-      { id: '1', date: '2025/1/18', content: '今日は新しいプロジェクトが始まりました。みんなと協力して頑張りたいと思います。', emotion: 'happy', isExpanded: false },
-      { id: '2', date: '2025/1/17', content: '昨日の疲れが残っていましたが、温かいコーヒーで元気になりました。', emotion: 'neutral', isExpanded: false },
-      { id: '3', date: '2025/1/16', content: '仕事が忙しくて疲れましたが、達成感もありました。', emotion: 'neutral', isExpanded: false },
-    ],
-    '2024年12月': [
-      { id: '4', date: '2024/12/31', content: '今年一年ありがとうございました。来年もよろしくお願いします。', emotion: 'happy', isExpanded: false },
-      { id: '5', date: '2024/12/30', content: '年末の大掃除をしました。部屋がすっきりして気持ちいいです。', emotion: 'happy', isExpanded: false },
-      { id: '6', date: '2024/12/29', content: '友達と会えて楽しかったです。久しぶりに笑いました。', emotion: 'happy', isExpanded: false },
-    ],
-    '2024年11月': [
-      { id: '7', date: '2024/11/30', content: '月末でバタバタしていました。少し疲れ気味です。', emotion: 'sad', isExpanded: false },
-      { id: '8', date: '2024/11/29', content: '紅葉がきれいでした。散歩していて心が癒されました。', emotion: 'happy', isExpanded: false },
-    ],
-    '2024年10月': [
-      { id: '9', date: '2024/10/31', content: 'ハロウィンでした。お菓子をたくさん食べて幸せです。', emotion: 'happy', isExpanded: false },
-      { id: '10', date: '2024/10/30', content: '秋の空気が心地よかったです。', emotion: 'neutral', isExpanded: false },
-    ]
+  // 現在の月のインデックスを計算
+  const getCurrentMonthIndex = (): number => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // 0ベースなので+1
+    
+    // 2024年10月以前の場合は最初の月を返す
+    if (currentYear < 2024 || (currentYear === 2024 && currentMonth < 10)) {
+      return 0;
+    }
+    
+    // 2027年12月以降の場合は最後の月を返す
+    if (currentYear > 2027 || (currentYear === 2027 && currentMonth > 12)) {
+      return months.length - 1;
+    }
+    
+    // 現在の月のインデックスを計算
+    let index = 0;
+    for (let year = 2024; year <= currentYear; year++) {
+      for (let month = 1; month <= 12; month++) {
+        // 2024年は10月から開始
+        if (year === 2024 && month < 10) continue;
+        
+        if (year === currentYear && month === currentMonth) {
+          return index;
+        }
+        index++;
+      }
+    }
+    
+    return 0; // フォールバック
+  };
+  
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(getCurrentMonthIndex());
+  const [diaryData, setDiaryData] = useState<Record<string, DiaryEntry[]>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Supabaseから日記データを取得
+  useEffect(() => {
+    const fetchDiaryData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // 月の配列を年と月に変換（古い順）
+        const generateMonthConfigs = (): Array<{ year: number; month: number }> => {
+          const configs: Array<{ year: number; month: number }> = [];
+          for (let year = 2024; year <= 2027; year++) {
+            for (let month = 1; month <= 12; month++) {
+              // 2024年は10月から開始
+              if (year === 2024 && month < 10) continue;
+              configs.push({ year, month });
+            }
+          }
+          return configs;
+        };
+
+        const monthConfigs = generateMonthConfigs();
+
+        const monthlyData = await DiaryService.getDiariesByMonths(monthConfigs);
+        
+        // Supabaseのデータをコンポーネント用の形式に変換
+        const convertedData: Record<string, DiaryEntry[]> = {};
+        
+        monthlyData.forEach(({ month, entries }) => {
+          convertedData[month] = entries.map((entry: SupabaseDiaryEntry) => ({
+            id: entry.id,
+            date: new Date(entry.created_at).toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric'
+            }),
+            content: entry.content, // 既に復号化済み
+            emotion: mapEmotionTag(entry.emotion_tag),
+            isExpanded: false
+          }));
+        });
+
+        setDiaryData(convertedData);
+      } catch (err) {
+        console.error('日記データ取得エラー:', err);
+        setError('日記データの取得に失敗しました');
+        
+        // エラー時のフォールバックデータ
+        setDiaryData({
+          '2025年1月': [
+            { id: '1', date: '2025/1/18', content: 'データの取得に失敗しました。', emotion: 'neutral', isExpanded: false },
+          ],
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDiaryData();
+  }, []);
+
+  // 感情タグをコンポーネント用の感情にマッピング
+  const mapEmotionTag = (emotionTag: string): 'happy' | 'neutral' | 'sad' => {
+    switch (emotionTag) {
+      case 'happy':
+      case 'excited':
+      case 'grateful':
+        return 'happy';
+      case 'sad':
+      case 'angry':
+      case 'anxious':
+      case 'lonely':
+        return 'sad';
+      default:
+        return 'neutral';
+    }
   };
 
   const currentMonth = months[currentMonthIndex];
-  const [entries, setEntries] = useState<DiaryEntry[]>(mockDiaryData[currentMonth] || []);
+  const [entries, setEntries] = useState<DiaryEntry[]>(diaryData[currentMonth] || []);
+
+  // 月が変更されたときにエントリーを更新
+  useEffect(() => {
+    setEntries(diaryData[currentMonth] || []);
+  }, [currentMonth, diaryData]);
 
   const handleToggleEntry = (id: string) => {
     setEntries(prev => prev.map(entry => 
@@ -267,7 +380,6 @@ export default function Archive({ onBack }: { onBack: () => void }) {
     if (currentMonthIndex < months.length - 1) {
       const newIndex = currentMonthIndex + 1;
       setCurrentMonthIndex(newIndex);
-      setEntries(mockDiaryData[months[newIndex]] || []);
     }
   };
 
@@ -275,9 +387,22 @@ export default function Archive({ onBack }: { onBack: () => void }) {
     if (currentMonthIndex > 0) {
       const newIndex = currentMonthIndex - 1;
       setCurrentMonthIndex(newIndex);
-      setEntries(mockDiaryData[months[newIndex]] || []);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="relative size-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]">
+        <BackButton onClick={onBack} />
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#EC4899] border-t-transparent mb-4 mx-auto"></div>
+            <p className="text-[#6B7280]">日記データを読み込み中...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative size-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]" data-name="日記閲覧画面">
@@ -285,6 +410,12 @@ export default function Archive({ onBack }: { onBack: () => void }) {
       
       <div className="px-6 h-full pb-32">
         <MonthHeader month={currentMonth} />
+        
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
         
         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
           {entries.length > 0 ? (

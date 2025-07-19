@@ -1,93 +1,42 @@
-# 匿名日記サービス
+# Mental Care Diary App
 
-匿名で日記を投稿し、共感できる仲間とマッチングしてチャットできるサービスです。
-
-## 機能
-
-### 1. 匿名日記投稿
-- ユーザー登録不要の匿名投稿
-- 感情タグ付きの日記作成
-- 自動キーワード抽出（NLP処理）
-- 24時間後の自動削除
-
-### 2. マッチング機能
-- 1日3回（朝9時、昼13時、夜20時）の自動マッチング
-- 共感ワードの類似度計算（70%以上）
-- 同一時間帯（±2時間）での投稿フィルタリング
-- 最大5名までのグループマッチング
-
-### 3. チャットルーム機能
-- リアルタイムチャット（WebSocket）
-- 24時間のルーム有効期限
-- メッセージの48時間自動削除
-- 匿名トークンによる参加者管理
-
-### 4. 通知機能
-- マッチング成功通知
-- 新メッセージ通知
-- ルーム終了警告通知
-- 7日間の通知保持
-
-### 5. セキュリティ機能
-- 日記内容の暗号化保存
-- 不適切な内容のフィルタリング
-- 匿名トークンによる識別
-- 自動データ削除
-
-## 技術スタック
-
-### バックエンド
-- **FastAPI**: Webフレームワーク
-- **SQLAlchemy**: ORM
-- **PostgreSQL**: データベース
-- **spaCy + SudachiPy**: 日本語NLP処理
-- **Socket.io**: リアルタイム通信
-- **APScheduler**: スケジューラー
-- **Cryptography**: 暗号化
-
-### フロントエンド
-- **React**: UIフレームワーク
-- **Vite**: ビルドツール
-- **Socket.io-client**: リアルタイム通信
+匿名日記サービス - 自然言語処理を使った匿名日記マッチングサービス
 
 ## セットアップ
 
 ### 1. 環境変数の設定
 
-`.env`ファイルを作成：
+#### フロントエンド（Supabase設定）
+`frontend/.env` ファイルを作成し、以下の内容を設定してください：
+
+```env
+# Supabase設定
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+#### バックエンド
+`backend/.env` ファイルを作成し、以下の内容を設定してください：
 
 ```env
 # データベース設定
-DATABASE_URL=postgresql://username:password@localhost:5432/diary_db
+DATABASE_URL=your_database_url_here
 
 # 暗号化設定
-ENCRYPTION_KEY=your-32-byte-encryption-key
+ENCRYPTION_KEY=your_32_byte_encryption_key_here
 
 # JWT設定
-JWT_SECRET=your-jwt-secret-key
+JWT_SECRET=your_jwt_secret_here
 
-# その他の設定
-DEBUG=True
+# ログ設定
 LOG_LEVEL=INFO
 ```
 
-### 2. バックエンドのセットアップ
+### 2. Supabaseのセットアップ
 
-```bash
-cd backend
-
-# 依存関係のインストール
-pip install -r requirements.txt
-
-# spaCyモデルのダウンロード
-python -m spacy download ja_core_news_sm
-
-# データベース初期化
-python -m app.db.init_db
-
-# アプリケーション起動
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
+1. [Supabase](https://supabase.com)でプロジェクトを作成
+2. プロジェクトの設定からURLとAnon Keyを取得
+3. SQL Editorで `supabase-schema.sql` の内容を実行してテーブルを作成
 
 ### 3. フロントエンドのセットアップ
 
@@ -100,6 +49,56 @@ npm install
 # 開発サーバー起動
 npm run dev
 ```
+
+### 4. バックエンドのセットアップ
+
+```bash
+cd backend
+
+# 依存関係のインストール
+pip install -r requirements.txt
+
+# spaCyモデルのダウンロード
+python -m spacy download ja_core_news_sm
+
+# アプリケーション起動
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## 機能
+
+### 日記機能
+- **匿名日記投稿**: 感情タグ付きで日記を投稿
+- **日記閲覧**: 月別に日記を閲覧
+- **感情分析**: 投稿内容から感情を自動分析
+- **キーワード抽出**: NLPによるキーワード抽出
+
+### マッチング機能
+- **共感ワード表示**: 同じキーワードを持つユーザーを表示
+- **自動マッチング**: スケジューラーによる定期マッチング
+- **手動マッチング**: 管理者による手動マッチング実行
+
+### チャット機能
+- **匿名チャット**: マッチしたユーザーとの匿名チャット
+- **リアルタイム通信**: WebSocketによるリアルタイムメッセージ
+- **ルーム管理**: チャットルームの作成・管理
+
+### 通知機能
+- **マッチング通知**: 新しいマッチングの通知
+- **メッセージ通知**: 新しいメッセージの通知
+- **未読管理**: 未読通知の管理
+
+## データベーススキーマ
+
+### diaries テーブル
+- `id`: UUID (主キー)
+- `content`: TEXT (日記内容)
+- `emotion_tag`: VARCHAR(50) (感情タグ)
+- `keywords`: JSONB (キーワード配列)
+- `created_at`: TIMESTAMP (作成日時)
+- `expires_at`: TIMESTAMP (有効期限)
+- `is_matched`: BOOLEAN (マッチング済みフラグ)
+- `anonymous_token`: VARCHAR(64) (匿名トークン)
 
 ## API エンドポイント
 
@@ -127,69 +126,31 @@ npm run dev
 - `PUT /api/notifications/{id}/read` - 既読設定
 - `PUT /api/notifications/read-all` - 全既読
 
-## データベーススキーマ
-
-### テーブル構成
-- `diaries` - 日記テーブル
-- `chat_rooms` - チャットルームテーブル
-- `chat_messages` - チャットメッセージテーブル
-- `notifications` - 通知テーブル
-
-### 主要なフィールド
-- 暗号化されたコンテンツ
-- 匿名トークン
-- 有効期限（expires_at）
-- 自動削除フラグ
-
 ## スケジューラー機能
 
 ### 自動実行タスク
-- **マッチング処理**: 朝9時、昼13時、夜20時
-- **ルーム終了警告**: 毎時0分
-- **クリーンアップ処理**: 毎時30分
-- **日記クリーンアップ**: 毎日午前2時
+- **マッチング処理**: 朝9時、昼13時、夜20時に実行
+- **ルーム終了警告**: 毎時0分にチェック
+- **クリーンアップ処理**: 毎時30分に実行
+- **日記クリーンアップ**: 毎日午前2時に実行
 
-### 手動実行
-```bash
-# 手動マッチング実行
-curl -X POST http://localhost:8000/api/matching/run
+## 開発
 
-# 手動クリーンアップ実行
-curl -X POST http://localhost:8000/api/cleanup/run
-```
+### フロントエンド
+- React + TypeScript + Vite
+- Tailwind CSS
+- Supabase Client
 
-## セキュリティ
+### バックエンド
+- FastAPI + Python
+- SQLAlchemy + PostgreSQL
+- spaCy (自然言語処理)
+- APScheduler (スケジューラー)
 
-### 匿名性の確保
-- ユーザー登録不要
-- Cookieベースの匿名トークン
-- 個人情報の非収集
-
-### データ保護
-- 日記内容の暗号化
-- 自動削除機能
-- 不適切な内容のフィルタリング
-
-### アクセス制御
-- 匿名トークンによる認証
-- ルーム参加権限チェック
-- メッセージ送信権限チェック
-
-## 開発・運用
-
-### ログ管理
-- 構造化ログ出力
-- エラーログの詳細記録
-- 不適切な内容の検出ログ
-
-### 監視
-- データベース接続状態
-- スケジューラー実行状況
-- API応答時間
-
-### バックアップ
-- 定期的なデータベースバックアップ
-- 設定ファイルのバージョン管理
+### デバッグ
+- フロントエンド: http://localhost:5173
+- バックエンド: http://localhost:8000
+- API ドキュメント: http://localhost:8000/docs
 
 ## ライセンス
 

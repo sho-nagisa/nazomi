@@ -224,7 +224,11 @@ export default function ChatRoom({ onBack }: { onBack: () => void }) {
     if (!currentRoom) return;
 
     try {
+      console.log('メッセージ送信開始:', { roomId: currentRoom.id, text });
+      
       const newApiMessage = await apiClient.sendMessage(currentRoom.id, text);
+      
+      console.log('メッセージ送信成功:', newApiMessage);
       
       const newMessage: Message = {
         id: newApiMessage.id,
