@@ -1,22 +1,24 @@
 import { useState } from "react";
+import { supabase } from "../lib/supabaseClient.ts"; // パスは実際のプロジェクトに合わせてください
 
 interface UserData {
+  id?: string;
   username: string;
   email: string;
   password: string;
   profileImage: string | null;
 }
 
-function InputField({ 
-  type, 
-  placeholder, 
-  value, 
-  onChange, 
-  icon 
-}: { 
-  type: string; 
-  placeholder: string; 
-  value: string; 
+function InputField({
+  type,
+  placeholder,
+  value,
+  onChange,
+  icon
+}: {
+  type: string;
+  placeholder: string;
+  value: string;
   onChange: (value: string) => void;
   icon?: React.ReactNode;
 }) {
@@ -36,11 +38,11 @@ function InputField({
   );
 }
 
-function ProfileImageSelector({ 
-  selectedImage, 
-  onImageSelect 
-}: { 
-  selectedImage: string | null; 
+function ProfileImageSelector({
+  selectedImage,
+  onImageSelect
+}: {
+  selectedImage: string | null;
   onImageSelect: (image: string | null) => void;
 }) {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,9 +62,9 @@ function ProfileImageSelector({
         <div className="w-24 h-24 rounded-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] p-1 shadow-lg">
           <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
             {selectedImage ? (
-              <img 
-                src={selectedImage} 
-                alt="プロフィール画像" 
+              <img
+                src={selectedImage}
+                alt="プロフィール画像"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -115,13 +117,13 @@ function ProfileImageSelector({
   );
 }
 
-function ActionButton({ 
-  onClick, 
-  children, 
+function ActionButton({
+  onClick,
+  children,
   disabled = false,
   variant = 'primary'
-}: { 
-  onClick: () => void; 
+}: {
+  onClick: () => void;
   children: React.ReactNode;
   disabled?: boolean;
   variant?: 'primary' | 'secondary';
@@ -131,7 +133,7 @@ function ActionButton({
   const secondaryClasses = "bg-gradient-to-r from-[#10B981] to-[#3B82F6] hover:from-[#059669] hover:to-[#2563EB] text-white hover:scale-105 hover:shadow-xl";
   const disabledClasses = "bg-gray-400 text-gray-600 cursor-not-allowed";
 
-  const classes = disabled 
+  const classes = disabled
     ? `${baseClasses} ${disabledClasses}`
     : `${baseClasses} ${variant === 'primary' ? primaryClasses : secondaryClasses}`;
 
@@ -150,6 +152,7 @@ function ActionButton({
 
 export default function Login({ onLogin }: { onLogin: (userData: UserData) => void }) {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<UserData>({
     username: '',
     email: '',
@@ -157,8 +160,7 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
     profileImage: null
   });
 
-  const handleSubmit = () => {
-    // バリデーション
+  const handleSubmit = async () => {
     if (!formData.email || !formData.password) {
       alert('メールアドレスとパスワードを入力してください');
       return;
@@ -169,29 +171,87 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
       return;
     }
 
-    // ローカルストレージに保存（実際のアプリではSupabaseを使用）
-    if (isRegisterMode) {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      users.push(formData);
-      localStorage.setItem('users', JSON.stringify(users));
-      localStorage.setItem('currentUser', JSON.stringify(formData));
-      console.log('ユーザー登録完了:', formData);
-    } else {
-      // ログイン処理
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((u: UserData) => u.email === formData.email && u.password === formData.password);
-      if (user) {
+    setIsLoading(true);
+
+    try {
+      if (isRegisterMode) {
+        // まず同じメールアドレスのユーザーが存在するかチェック
+        const { data: existingUsers, error: checkError } = await supabase
+          .from('user_info')  // テーブル名を修正
+          .select('email')
+          .eq('email', formData.email);
+
+        if (checkError) {
+          console.error('Check error:', checkError);
+          alert('エラーが発生しました: ' + checkError.message);
+          return;
+        }
+
+        if (existingUsers && existingUsers.length > 0) {
+          alert('このメールアドレスは既に登録されています');
+          return;
+        }
+
+        // Supabase にユーザー登録（カラム名を確認して調整）
+        const insertData: {
+          username: string;
+          email: string;
+          password: string;
+          profile_image?: string | null;
+        } = {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password, // 本番ではハッシュ化必須！
+          profile_image: formData.profileImage
+        };
+
+        console.log('Inserting data:', insertData); // デバッグ用
+
+        const { data, error } = await supabase
+          .from('user_info')
+          .insert(insertData)
+          .select(); // 挿入したデータを返すようにする
+
+        if (error) {
+          console.error('Insert error:', error);
+          alert('登録に失敗しました: ' + error.message);
+          return;
+        }
+
+        const newUser = data[0];
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        console.log('ユーザー登録完了:', newUser);
+        onLogin(newUser);
+      } else {
+        // Supabase でログイン処理
+        const { data: users, error } = await supabase
+          .from('user_info')  // テーブル名を修正
+          .select('*')
+          .eq('email', formData.email)
+          .eq('password', formData.password); // 本番ではハッシュ化したパスワードで比較
+
+        if (error) {
+          console.error('Login error:', error);
+          alert('ログインエラー: ' + error.message);
+          return;
+        }
+
+        if (!users || users.length === 0) {
+          alert('メールアドレスまたはパスワードが間違っています');
+          return;
+        }
+
+        const user = users[0];
         localStorage.setItem('currentUser', JSON.stringify(user));
         console.log('ログイン成功:', user);
         onLogin(user);
-        return;
-      } else {
-        alert('メールアドレスまたはパスワードが間違っています');
-        return;
       }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('予期しないエラーが発生しました');
+    } finally {
+      setIsLoading(false);
     }
-
-    onLogin(formData);
   };
 
   const toggleMode = () => {
@@ -213,9 +273,7 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
             {/* Header */}
             <div className="text-center mb-8">
-              <div
-                className="font-bold text-transparent bg-gradient-to-r from-[#6366F1] via-[#EC4899] to-[#8B5CF6] bg-clip-text text-[32px] tracking-[1.6px] mb-2"
-              >
+              <div className="font-bold text-transparent bg-gradient-to-r from-[#6366F1] via-[#EC4899] to-[#8B5CF6] bg-clip-text text-[32px] tracking-[1.6px] mb-2">
                 <p className="block leading-[normal]">
                   {isRegisterMode ? 'アカウント作成' : 'ログイン'}
                 </p>
@@ -250,7 +308,7 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
                   }
                 />
               )}
-              
+
               <InputField
                 type="email"
                 placeholder="メールアドレス"
@@ -262,7 +320,7 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
                   </svg>
                 }
               />
-              
+
               <InputField
                 type="password"
                 placeholder="パスワード"
@@ -280,9 +338,9 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
             <div className="mb-6">
               <ActionButton
                 onClick={handleSubmit}
-                disabled={!isFormValid}
+                disabled={!isFormValid || isLoading}
               >
-                {isRegisterMode ? 'アカウント作成' : 'ログイン'}
+                {isLoading ? '処理中...' : (isRegisterMode ? 'アカウント作成' : 'ログイン')}
               </ActionButton>
             </div>
 
@@ -290,10 +348,11 @@ export default function Login({ onLogin }: { onLogin: (userData: UserData) => vo
             <div className="text-center">
               <button
                 onClick={toggleMode}
-                className="text-[#6366F1] hover:text-[#5B21B6] font-medium text-[14px] transition-colors duration-200"
+                disabled={isLoading}
+                className="text-[#6366F1] hover:text-[#5B21B6] font-medium text-[14px] transition-colors duration-200 disabled:opacity-50"
               >
-                {isRegisterMode 
-                  ? 'すでにアカウントをお持ちですか？ ログイン' 
+                {isRegisterMode
+                  ? 'すでにアカウントをお持ちですか？ ログイン'
                   : 'アカウントをお持ちでない方はこちら'}
               </button>
             </div>
