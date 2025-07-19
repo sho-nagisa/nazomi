@@ -9,6 +9,7 @@ python-dotenv              # .env 読み込み
 # 🛢️ PostgreSQL + ORM
 sqlalchemy
 asyncpg                   # PostgreSQL用の非同期ドライバ（SQLAlchemy 2.0+用）
+psycopg2-binary
 
 # 📡 Supabase API クライアント
 supabase-py
