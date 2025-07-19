@@ -1,8 +1,13 @@
-FROM node:20
+FROM node:18-alpine
+
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install          # 依存だけ先にインストールするとキャッシュが効く
+
+RUN npm install
 
 COPY . .
-CMD ["npm", "run", "dev", "--", "--host"]
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
