@@ -31,7 +31,7 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
 
             # Supabaseに保存
             expires_at = (datetime.utcnow() + timedelta(hours=48)).isoformat()
-            supabase.table("messege").insert({
+            supabase.table("message").insert({
                 "matchid": int(room_id),
                 "senderId": sender_id,
                 "recieveId": None,  # グループチャットでは不要 or 空欄
@@ -57,26 +57,29 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
 async def cleanup_expired_chat_rooms():
     try:
         now = datetime.utcnow().isoformat()
-        response = supabase.table("chat_rooms").select("*").execute()
-        expired_rooms = [r for r in response.data if r["expires_at"] < now]
 
-        for room in expired_rooms:
-            supabase.table("chat_rooms").delete().eq("id", room["id"]).execute()
+        # 削除前に件数確認（任意）
+        response = supabase.table("chat_rooms").select("*").lt("expires_at", now).execute()
+        deleted_count = len(response.data)
 
-        return {"deleted": len(expired_rooms)}
+        # 一括削除
+        supabase.table("chat_rooms").delete().lt("expires_at", now).execute()
+
+        return {"deleted": deleted_count}
     except Exception as e:
         return {"error": str(e)}
+
 
 # 48時間経過したメッセージ削除処理
 @router.post("/api/messages/cleanup")
 async def cleanup_old_messages():
     try:
         now = datetime.utcnow().isoformat()
-        response = supabase.table("messege").select("*").execute()
+        response = supabase.table("message").select("*").execute()
         expired = [m for m in response.data if m.get("expires_at") and m["expires_at"] < now]
 
         for msg in expired:
-            supabase.table("messege").delete().eq("id", msg["id"]).execute()
+            supabase.table("message").delete().eq("id", msg["id"]).execute()
 
         return {"deleted": len(expired)}
     except Exception as e:
