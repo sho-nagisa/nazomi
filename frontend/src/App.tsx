@@ -54,52 +54,21 @@ function GenericAvatar({ user }: { user: UserData | null }) {
     </div>
   );
 }
-const svgPaths = {
-  p3a025180:
-    "M109.833 50.1666C111.102 48.8976 112.898 48.8976 114.167 50.1666C115.436 51.4356 115.436 53.2315 114.167 54.5005L65.5002 103.167H50.0002V87.6666L109.833 50.1666Z",
-  p34d70400: "M25 18H10M10 18L18 10M10 18L18 26", // これはChatRoomApplicationのBackButton用ですが、参考として含めます
-};
+
 function EditButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="absolute top-[480px] left-[20px] w-[165px] h-[152px]">
       <button
         onClick={onClick}
-        className="block size-full transition-transform hover:scale-105 active:scale-95" // ホバーとクリック時のアニメーション
+        className="relative w-full h-full bg-pink-500 rounded-full text-white font-bold shadow-lg hover:scale-105 active:scale-95 transition"
         aria-label="日記を書く"
       >
-        <svg
-          className="block size-full" // SVGが親要素のサイズにフィットするように設定
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 165 153" // SVGのビューボックス。アイコンのサイズに合わせて調整
-        >
-          <g id="Frame 1">
-            {/* ボタンの背景となる円形 */}
-            <ellipse
-              cx="82.4275"
-              cy="76.0741"
-              fill="#3B82F6" // 青色の背景
-              id="Ellipse 2"
-              rx="82.4275"
-              ry="76.0741"
-            />
-            <g id="Edit">
-              {/* 日記アイコンのパス */}
-              <path
-                d={svgPaths.p3a025180} // 日記アイコンのSVGパス
-                id="Icon"
-                stroke="white" // アイコンの色
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-              />
-            </g>
-          </g>
-        </svg>
+        ✍ 日記
       </button>
     </div>
   );
 }
+
 
 
 function HeartButton({ onClick }: { onClick: () => void }) {

@@ -1,4 +1,4 @@
-import svgPaths from "./imports/svg-6v1j3s2nqr";
+// import svgPaths from "./imports/svg-6v1j3s2nqr";
 import { useState } from "react";
 
 interface UserData {

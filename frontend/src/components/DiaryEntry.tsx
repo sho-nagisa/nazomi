@@ -238,7 +238,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
         >
           <g id="Arrow left">
             <path
-              d={svgPaths.p34d70400} // Assuming this path is for a left arrow
+              d={svgPaths.p34d70400}
               id="Icon"
               stroke="white"
               strokeLinecap="round"
@@ -258,24 +258,8 @@ export default function DiaryEntry({ onBack }: { onBack: () => void }) {
 
   const handleSubmit = () => {
     if (selectedEmotion && diaryText.trim()) {
-      // 現在の日付情報を取得
-      const currentDate = new Date(); 
-      
-      // Supabaseに保存することを想定したデータ構造
-      const diaryData = {
-        emotion: selectedEmotion,
-        text: diaryText,
-        date: currentDate.toISOString(), // ISO形式の文字列で保存するのが一般的
-        // 他にもユーザーIDなど、Supabaseに保存したい情報をここに追加
-        // userId: currentUser.id, // 例
-      };
-
-      console.log('日記投稿データ:', diaryData);
-      
-      // ここでSupabaseへの投稿処理を実装します。
-      // 例:
-      // await supabase.from('diaries').insert([diaryData]);
-
+      console.log('日記投稿:', { emotion: selectedEmotion, text: diaryText });
+      // ここで投稿処理を実装
       onBack(); // 投稿後にホーム画面に戻る
     }
   };
