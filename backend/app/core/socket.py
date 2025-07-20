@@ -1,58 +1,87 @@
 import socketio
 import logging
-from app.core.config import settings
+from typing import Dict, Any
 
-# ログ設定
 logger = logging.getLogger(__name__)
 
-# Socket.ioサーバー
+# Socket.IOサーバーの作成
 sio = socketio.AsyncServer(
-    async_mode='asgi',
-    cors_allowed_origins=settings.ALLOWED_ORIGINS
+    cors_allowed_origins="*",
+    logger=True,
+    engineio_logger=True
 )
 
-# Socket.ioイベントハンドラー
+# 接続管理
+connected_users: Dict[str, str] = {}  # sid -> room_id
+
 @sio.event
 async def connect(sid, environ):
+    """クライアント接続時の処理"""
     logger.info(f"Client connected: {sid}")
+    await sio.emit('connected', {'sid': sid}, room=sid)
 
 @sio.event
 async def disconnect(sid):
+    """クライアント切断時の処理"""
     logger.info(f"Client disconnected: {sid}")
+    if sid in connected_users:
+        room_id = connected_users[sid]
+        await sio.leave_room(sid, room_id)
+        del connected_users[sid]
 
 @sio.event
 async def join_room(sid, data):
-    room = data.get('room')
-    if room:
-        sio.enter_room(sid, room)
-        await sio.emit('user_joined', {'user': sid}, room=room)
+    """チャットルームに参加"""
+    room_id = data.get('room_id')
+    if room_id:
+        await sio.enter_room(sid, room_id)
+        connected_users[sid] = room_id
+        await sio.emit('user_joined', {'sid': sid, 'room_id': room_id}, room=room_id)
+        logger.info(f"User {sid} joined room {room_id}")
 
 @sio.event
 async def leave_room(sid, data):
-    room = data.get('room')
-    if room:
-        sio.leave_room(sid, room)
-        await sio.emit('user_left', {'user': sid}, room=room)
+    """チャットルームから退出"""
+    room_id = data.get('room_id')
+    if room_id and sid in connected_users:
+        await sio.leave_room(sid, room_id)
+        del connected_users[sid]
+        await sio.emit('user_left', {'sid': sid, 'room_id': room_id}, room=room_id)
+        logger.info(f"User {sid} left room {room_id}")
 
-# チャット関連のイベントハンドラー
 @sio.event
 async def send_message(sid, data):
-    room = data.get('room')
+    """メッセージ送信"""
+    room_id = data.get('room_id')
     message = data.get('message')
-    if room and message:
-        await sio.emit('new_message', {
-            'user': sid,
+    anonymous_token = data.get('anonymous_token')
+    
+    if room_id and message:
+        message_data = {
+            'sid': sid,
             'message': message,
-            'timestamp': data.get('timestamp')
-        }, room=room)
-
-# マッチング関連のイベントハンドラー
-@sio.event
-async def request_match(sid, data):
-    # マッチングリクエストの処理
-    await sio.emit('match_request', data, room=data.get('target_room'))
+            'anonymous_token': anonymous_token,
+            'timestamp': socketio.time()
+        }
+        await sio.emit('new_message', message_data, room=room_id)
+        logger.info(f"Message sent to room {room_id}")
 
 @sio.event
-async def accept_match(sid, data):
-    # マッチング承認の処理
-    await sio.emit('match_accepted', data, room=data.get('room')) 
+async def typing(sid, data):
+    """タイピング状態の送信"""
+    room_id = data.get('room_id')
+    is_typing = data.get('is_typing', False)
+    
+    if room_id:
+        typing_data = {
+            'sid': sid,
+            'is_typing': is_typing
+        }
+        await sio.emit('user_typing', typing_data, room=room_id)
+
+# エラーハンドリング
+@sio.event
+async def error(sid, data):
+    """エラー処理"""
+    logger.error(f"Socket.IO error for {sid}: {data}")
+    await sio.emit('error', {'message': 'An error occurred'}, room=sid) 

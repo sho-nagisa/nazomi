@@ -13,3 +13,13 @@ sudachidict_core>=20230927
 cryptography>=41.0.0
 python-socketio>=5.10.0
 python-jose>=3.3.0
+passlib>=1.7.4
+bcrypt>=4.0.1
+apscheduler>=3.10.0
+websockets>=11.0.0
+
+# テスト用依存関係
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+httpx>=0.24.0
