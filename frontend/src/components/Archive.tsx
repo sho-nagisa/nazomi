@@ -1,4 +1,4 @@
-import svgPaths from "../../imports/svg-56hwv34ena";
+import svgPaths from "../assets/svg-56hwv34ena";
 import { useState } from "react";
 
 interface DiaryEntry {
@@ -63,7 +63,7 @@ function EmotionIcon({ emotion }: { emotion: 'happy' | 'neutral' | 'sad' }) {
     neutral: '#F59E0B',
     sad: '#EF4444'
   };
-  
+
   const emojis = {
     happy: '😊',
     neutral: '😐',
@@ -71,7 +71,7 @@ function EmotionIcon({ emotion }: { emotion: 'happy' | 'neutral' | 'sad' }) {
   };
 
   return (
-    <div 
+    <div
       className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs"
       style={{ backgroundColor: colors[emotion] }}
     >
@@ -80,24 +80,22 @@ function EmotionIcon({ emotion }: { emotion: 'happy' | 'neutral' | 'sad' }) {
   );
 }
 
-function AccordionItem({ 
-  entry, 
-  onToggle 
-}: { 
-  entry: DiaryEntry; 
+function AccordionItem({
+  entry,
+  onToggle
+}: {
+  entry: DiaryEntry;
   onToggle: (id: string) => void;
 }) {
   return (
     <div
-      className={`relative rounded-lg shrink-0 w-full transition-all duration-300 hover:shadow-lg ${
-        entry.isExpanded ? 'bg-gradient-to-r from-blue-50 to-purple-50' : 'bg-white'
-      }`}
+      className={`relative rounded-lg shrink-0 w-full transition-all duration-300 hover:shadow-lg ${entry.isExpanded ? 'bg-gradient-to-r from-blue-50 to-purple-50' : 'bg-white'
+        }`}
       data-name="Accordion Item"
     >
-      <div className={`absolute border ${
-        entry.isExpanded ? 'border-[#6366F1]' : 'border-gray-200'
-      } border-solid inset-0 pointer-events-none rounded-lg transition-colors duration-300`} />
-      
+      <div className={`absolute border ${entry.isExpanded ? 'border-[#6366F1]' : 'border-gray-200'
+        } border-solid inset-0 pointer-events-none rounded-lg transition-colors duration-300`} />
+
       <div className="relative size-full">
         <div className="box-border content-stretch flex flex-col gap-2 items-start justify-start p-4 relative w-full">
           {/* Accordion Title */}
@@ -112,7 +110,7 @@ function AccordionItem({
             </div>
             {entry.isExpanded ? <ChevronUp /> : <ChevronDown />}
           </button>
-          
+
           {/* Accordion Content */}
           {entry.isExpanded && (
             <div
@@ -156,13 +154,13 @@ function MonthNavigationButtons({
           </svg>
           前の月
         </button>
-        
+
         <div className="text-center">
           <div className="font-['SF_Pro:Heavy',_'Noto_Sans_JP:Bold',_sans-serif] font-[860] text-transparent bg-gradient-to-r from-[#6366F1] to-[#EC4899] bg-clip-text text-[18px] tracking-[0.9px]">
             {currentMonth}
           </div>
         </div>
-        
+
         <button
           onClick={onNextMonth}
           disabled={!hasNextMonth}
@@ -181,7 +179,7 @@ function MonthNavigationButtons({
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="absolute bg-gradient-to-r from-[#10B981] to-[#6366F1] box-border content-stretch flex flex-row gap-2.5 h-[61px] items-center justify-start left-0 px-[13px] py-3 top-0 w-[390px] shadow-lg z-10">
-      <button 
+      <button
         onClick={onClick}
         className="h-9 w-[35px] transition-transform hover:scale-110 active:scale-95"
         aria-label="戻る"
@@ -231,7 +229,7 @@ function MonthHeader({ month }: { month: string }) {
 export default function Archive({ onBack }: { onBack: () => void }) {
   const months = ['2025年1月', '2024年12月', '2024年11月', '2024年10月'];
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
-  
+
   // Mock data - 実際のアプリでは API から取得
   const mockDiaryData: Record<string, DiaryEntry[]> = {
     '2025年1月': [
@@ -258,7 +256,7 @@ export default function Archive({ onBack }: { onBack: () => void }) {
   const [entries, setEntries] = useState<DiaryEntry[]>(mockDiaryData[currentMonth] || []);
 
   const handleToggleEntry = (id: string) => {
-    setEntries(prev => prev.map(entry => 
+    setEntries(prev => prev.map(entry =>
       entry.id === id ? { ...entry, isExpanded: !entry.isExpanded } : entry
     ));
   };
@@ -282,10 +280,10 @@ export default function Archive({ onBack }: { onBack: () => void }) {
   return (
     <div className="relative size-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]" data-name="日記閲覧画面">
       <BackButton onClick={onBack} />
-      
+
       <div className="px-6 h-full pb-32">
         <MonthHeader month={currentMonth} />
-        
+
         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
           {entries.length > 0 ? (
             <div className="box-border content-stretch flex flex-col gap-4 items-start justify-start p-0 relative w-full">
@@ -307,7 +305,7 @@ export default function Archive({ onBack }: { onBack: () => void }) {
           )}
         </div>
       </div>
-      
+
       <MonthNavigationButtons
         currentMonth={currentMonth}
         hasNextMonth={currentMonthIndex < months.length - 1}

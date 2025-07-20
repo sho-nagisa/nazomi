@@ -1,4 +1,3 @@
-import svgPaths from "../../imports/svg-mn7zcpghp2";
 import { useState, useEffect } from "react";
 
 interface Message {
@@ -11,14 +10,16 @@ interface Message {
 
 function AnimatedKeyword({ keyword }: { keyword: string }) {
   return (
-    <div className="relative overflow-hidden w-full">
-      <div
-        className="[text-shadow:rgba(0,0,0,0.25)_0px_4px_4px] font-['SF_Pro:Heavy',_'Noto_Sans_JP:Bold',_sans-serif] font-[860] text-transparent bg-gradient-to-r from-[#6366F1] via-[#EC4899] to-[#8B5CF6] bg-clip-text text-[50px] text-center tracking-[2.5px] animate-pulse"
-        style={{ fontVariationSettings: "'wdth' 100" }}
-      >
-        <p className="adjustLetterSpacing block leading-[normal] animate-bounce">
-          {keyword}
-        </p>
+    <div className="relative overflow-hidden w-full mb-6">
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-500/20 to-indigo-600/20 blur-3xl rounded-full"></div>
+        <div
+          className="relative font-bold text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 bg-clip-text text-4xl md:text-5xl text-center tracking-wide"
+        >
+          <p className="leading-normal animate-pulse drop-shadow-lg">
+            {keyword}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -27,15 +28,15 @@ function AnimatedKeyword({ keyword }: { keyword: string }) {
 function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({
     hours: 23,
-    minutes: 24,
-    seconds: 5
+    minutes: 59,
+    seconds: 59
   });
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(prev => {
         let { hours, minutes, seconds } = prev;
-        
+
         if (seconds > 0) {
           seconds--;
         } else if (minutes > 0) {
@@ -46,7 +47,7 @@ function CountdownTimer() {
           minutes = 59;
           seconds = 59;
         }
-        
+
         return { hours, minutes, seconds };
       });
     }, 1000);
@@ -57,19 +58,15 @@ function CountdownTimer() {
   const formatTime = (time: number) => time.toString().padStart(2, '0');
 
   return (
-    <div className="text-center">
-      <div
-        className="font-['SF_Pro:Heavy',_'Noto_Sans_JP:Bold',_sans-serif] font-[860] text-[#374151] text-[16px] tracking-[0.8px]"
-        style={{ fontVariationSettings: "'wdth' 100" }}
-      >
-        <p className="adjustLetterSpacing leading-[normal]">
-          終了まで {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
-        </p>
+    <div className="text-center bg-white/60 backdrop-blur-md rounded-2xl p-4 shadow-lg border border-white/20">
+      <div className="font-semibold text-slate-700 text-lg mb-3 flex items-center justify-center gap-2">
+        <span className="text-2xl">⏰</span>
+        終了まで {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-        <div 
-          className="bg-gradient-to-r from-[#EC4899] to-[#F59E0B] h-2 rounded-full transition-all duration-1000"
-          style={{ width: `${((23*3600 + 24*60 + 5 - (timeLeft.hours*3600 + timeLeft.minutes*60 + timeLeft.seconds)) / (24*3600)) * 100}%` }}
+      <div className="w-full bg-slate-200/50 rounded-full h-3 overflow-hidden shadow-inner">
+        <div
+          className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 h-3 rounded-full transition-all duration-1000 shadow-sm"
+          style={{ width: `${((23 * 3600 + 24 * 60 + 5 - (timeLeft.hours * 3600 + timeLeft.minutes * 60 + timeLeft.seconds)) / (24 * 3600)) * 100}%` }}
         ></div>
       </div>
     </div>
@@ -78,20 +75,19 @@ function CountdownTimer() {
 
 function ChatMessage({ message }: { message: Message }) {
   return (
-    <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`max-w-[70%] ${message.isOwn ? 'order-2' : 'order-1'}`}>
+    <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} mb-6 animate-fade-in`}>
+      <div className={`max-w-[75%] ${message.isOwn ? 'order-2' : 'order-1'}`}>
         {!message.isOwn && (
-          <p className="text-xs text-gray-500 mb-1 px-2">{message.username}</p>
+          <p className="text-sm text-slate-500 mb-2 px-3 font-medium">{message.username}</p>
         )}
         <div
-          className={`px-4 py-2 rounded-2xl ${
-            message.isOwn
-              ? 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] text-white'
-              : 'bg-white border border-gray-200 text-gray-800'
-          } shadow-sm`}
+          className={`px-5 py-3 rounded-3xl shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:scale-[1.02] ${message.isOwn
+            ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white border border-purple-400/20'
+            : 'bg-white/80 border border-slate-200/50 text-slate-800'
+            }`}
         >
-          <p className="text-sm">{message.text}</p>
-          <p className={`text-xs mt-1 ${message.isOwn ? 'text-blue-100' : 'text-gray-400'}`}>
+          <p className="text-base leading-relaxed">{message.text}</p>
+          <p className={`text-xs mt-2 ${message.isOwn ? 'text-purple-100' : 'text-slate-400'}`}>
             {message.timestamp.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
@@ -118,52 +114,52 @@ function ChatInput({ onSendMessage }: { onSendMessage: (text: string) => void })
   };
 
   return (
-    <div className="flex gap-2 p-4 bg-white border-t border-gray-200">
-      <input
-        type="text"
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        onKeyPress={handleKeyPress}
-        placeholder="メッセージを入力..."
-        className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
-      />
-      <button
-        onClick={handleSend}
-        disabled={!inputText.trim()}
-        className="px-6 py-2 bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#5B21B6] hover:to-[#7C3AED] disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white rounded-full transition-all duration-200 transform hover:scale-105 disabled:scale-100"
-      >
-        送信
-      </button>
+    <div className="bg-white/90 backdrop-blur-md border-t border-white/20 shadow-2xl">
+      <div className="p-6 space-y-4">
+        <div className="flex gap-4 items-end">
+          <div className="flex-1">
+            <textarea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="メッセージを入力してください... ✨"
+              rows={3}
+              className="w-full px-5 py-4 border border-slate-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-base bg-white/80 backdrop-blur-sm shadow-inner placeholder-slate-400 transition-all duration-200 hover:shadow-md"
+            />
+          </div>
+          <button
+            onClick={handleSend}
+            disabled={!inputText.trim()}
+            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed text-white rounded-2xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 shadow-lg hover:shadow-xl font-semibold text-base min-w-[100px] flex items-center justify-center gap-2"
+          >
+            <span>送信</span>
+            <span className="text-lg">✈️</span>
+          </button>
+        </div>
+        <div className="text-center text-sm text-slate-500">
+          Enterで送信 • Shift+Enterで改行
+        </div>
+      </div>
     </div>
   );
 }
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="absolute bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] box-border content-stretch flex flex-row gap-2.5 h-[61px] items-center justify-start left-0 px-[13px] py-3 top-0 w-[390px] shadow-lg z-10">
-      <button 
-        onClick={onClick}
-        className="h-9 w-[35px] transition-transform hover:scale-110 active:scale-95"
-        aria-label="戻る"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 35 36"
+    <div className="absolute bg-gradient-to-r from-purple-600 to-indigo-600 shadow-2xl z-20 w-full">
+      <div className="flex items-center justify-between p-4">
+        <button
+          onClick={onClick}
+          className="h-10 w-10 bg-white/20 backdrop-blur-sm rounded-full transition-all duration-200 hover:bg-white/30 hover:scale-110 active:scale-95 flex items-center justify-center shadow-lg"
+          aria-label="戻る"
         >
-          <g id="Arrow left">
-            <path
-              d={svgPaths.p34d70400}
-              id="Icon"
-              stroke="white"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="4"
-            />
-          </g>
-        </svg>
-      </button>
+          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div className="text-white font-semibold text-lg">チャットルーム</div>
+        <div className="w-10"></div>
+      </div>
     </div>
   );
 }
@@ -207,31 +203,40 @@ export default function ChatRoom({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="relative size-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]" data-name="チャットルーム画面">
+    <div className="relative h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-300/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-20 -right-10 w-60 h-60 bg-pink-300/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-10 -left-20 w-80 h-80 bg-indigo-300/20 rounded-full blur-3xl"></div>
+      </div>
+
       <BackButton onClick={onBack} />
-      
+
       {/* Header with keyword and countdown */}
-      <div className="pt-[61px] pb-4 px-4 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-        <div className="text-center mb-4">
-          <AnimatedKeyword keyword={currentKeyword} />
-        </div>
+      <div className="relative pt-24 pb-6 px-6 bg-gradient-to-b from-white/40 to-transparent backdrop-blur-sm">
+        <AnimatedKeyword keyword={currentKeyword} />
         <CountdownTimer />
       </div>
 
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-20" style={{ height: 'calc(100vh - 200px)' }}>
-        <div className="mb-4 text-center">
-          <div className="inline-block bg-gradient-to-r from-[#10B981] to-[#3B82F6] text-white px-4 py-2 rounded-full text-sm">
+      <div className="relative flex-1 overflow-y-auto px-6 py-4" style={{ height: 'calc(100vh - 320px)' }}>
+        <div className="mb-8 text-center">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg backdrop-blur-sm">
+            <span className="text-lg">🎯</span>
             「{currentKeyword}」をテーマにしたチャットルームが開始されました
           </div>
         </div>
-        
-        {messages.map(message => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-        
-        <div className="text-center text-xs text-gray-500 mt-4">
-          💡 このチャットルームは24時間後に自動終了します
+
+        <div className="space-y-2">
+          {messages.map(message => (
+            <ChatMessage key={message.id} message={message} />
+          ))}
+        </div>
+
+        <div className="text-center text-sm text-slate-500 mt-8 bg-white/50 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+          <span className="text-lg mr-2">💡</span>
+          このチャットルームは24時間後に自動終了します
         </div>
       </div>
 
@@ -239,6 +244,22 @@ export default function ChatRoom({ onBack }: { onBack: () => void }) {
       <div className="absolute bottom-0 left-0 right-0">
         <ChatInput onSendMessage={handleSendMessage} />
       </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

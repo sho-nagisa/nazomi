@@ -5,7 +5,7 @@ import EmotionAnalysis from "./components/EmotionAnalysis";
 import Archive from "./components/Archive";
 import Login from "./components/Login";
 
-type Screen = 'login' | 'home' | 'diary' | 'chat' | 'emotion' | 'archive';
+type Screen = 'login' | 'home' | 'diary' | 'chat' | 'emotion' | 'archive' | 'profile';
 
 interface UserData {
   username: string;
@@ -14,264 +14,251 @@ interface UserData {
   profileImage: string | null;
 }
 
-function GenericAvatar({ user }: { user: UserData | null }) {
-  return (
-    <div
-      className="absolute left-[165px] size-[60px] top-[274.852px]"
-      data-name="Generic avatar"
-    >
-      <div className="w-full h-full rounded-full bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] p-1 shadow-lg">
-        <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-          {user?.profileImage ? (
-            <img 
-              src={user.profileImage} 
-              alt="プロフィール画像" 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <svg
-              className="block size-full"
-              fill="none"
-              preserveAspectRatio="none"
-              viewBox="0 0 60 60"
-            >
-              <g id="Generic avatar">
-                <rect fill="#6366F1" height="60" rx="30" width="60" />
-                <g id="Avatar Placeholder">
-                  <path
-                    clipRule="evenodd"
-                    d="M30 8C22.2683 8 16 14.2683 16 22C16 29.7317 22.2683 36 30 36C37.7317 36 44 29.7317 44 22C44 14.2683 37.7317 8 30 8ZM20 22C20 16.4772 24.4772 12 30 12C35.5228 12 40 16.4772 40 22C40 27.5228 35.5228 32 30 32C24.4772 32 20 27.5228 20 22Z"
-                    fill="white"
-                    fillRule="evenodd"
-                  />
-                  <path d="M52 52C52 43.1634 44.8366 36 36 36H24C15.1634 36 8 43.1634 8 52V60H52V52Z" fill="white" />
-                </g>
-              </g>
-            </svg>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function EditButton({ onClick }: { onClick: () => void }) {
-  return (
-    <div className="absolute top-[480px] left-[20px] w-[165px] h-[152px]">
-      <button
-        onClick={onClick}
-        className="relative w-full h-full bg-pink-500 rounded-full text-white font-bold shadow-lg hover:scale-105 active:scale-95 transition"
-        aria-label="日記を書く"
-      >
-        ✍ 日記
-      </button>
-    </div>
-  );
-}
-
-
-
-function HeartButton({ onClick }: { onClick: () => void }) {
-  return (
-    <div className="absolute h-[152.148px] left-[205px] top-[479.852px] w-[164.855px]">
-      <button 
-        onClick={onClick}
-        className="block size-full transition-transform hover:scale-105 active:scale-95"
-        aria-label="感情記録"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 165 153"
-        >
-          <g id="Group 1">
-            <ellipse
-              cx="82.4275"
-              cy="76.0741"
-              fill="#EC4899"
-              id="Ellipse 1"
-              rx="82.4275"
-              ry="76.0741"
-            />
-            <g id="Heart">
-              <path
-                d="M82.4275 89.5741C82.4275 89.5741 65 76.0741 65 64.5741C65 58.5741 69.9772 53.5741 76 53.5741C78.7614 53.5741 81.2386 55.0741 82.4275 57.5741C83.6164 55.0741 86.0936 53.5741 88.855 53.5741C94.8778 53.5741 99.855 58.5741 99.855 64.5741C99.855 76.0741 82.4275 89.5741 82.4275 89.5741Z"
-                id="Icon"
-                stroke="white"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-              />
-            </g>
-          </g>
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-function ArchiveButton({ onClick }: { onClick: () => void }) {
-  return (
-    <div className="absolute h-[152.148px] left-[20.145px] top-[643px] w-[164.855px]">
-      <button 
-        onClick={onClick}
-        className="block size-full transition-transform hover:scale-105 active:scale-95"
-        aria-label="アーカイブ"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 165 153"
-        >
-          <g id="Frame 3">
-            <ellipse
-              cx="82.4275"
-              cy="76.0741"
-              fill="#10B981"
-              id="Ellipse 4"
-              rx="82.4275"
-              ry="76.0741"
-            />
-            <g id="Archive">
-              <path
-                d="M62 64.0741H102M62 64.0741V91.0741C62 92.1787 62.8954 93.0741 64 93.0741H100C101.105 93.0741 102 92.1787 102 91.0741V64.0741M62 64.0741L64 60.0741H100L102 64.0741M78 72.0741H86"
-                id="Icon"
-                stroke="white"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-              />
-            </g>
-          </g>
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-function MessageButton({ onClick }: { onClick: () => void }) {
-  return (
-    <div className="absolute h-[152.148px] left-[205px] top-[643px] w-[164.855px]">
-      <button 
-        onClick={onClick}
-        className="block size-full transition-transform hover:scale-105 active:scale-95"
-        aria-label="メッセージ"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 165 153"
-        >
-          <g id="Frame 4">
-            <ellipse
-              cx="82.4275"
-              cy="76.0741"
-              fill="#8B5CF6"
-              id="Ellipse 3"
-              rx="82.4275"
-              ry="76.0741"
-            />
-            <g id="Message circle">
-              <path
-                d="M60 76.0741C60 63.7741 69.9497 53.8244 82.2527 53.8244H82.6023C94.9053 53.8244 104.855 63.7741 104.855 76.0741V76.4237C104.855 88.7267 94.9053 98.6764 82.6023 98.6764H68.4275L60 107.074V76.0741Z"
-                id="Icon"
-                stroke="white"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="4"
-              />
-            </g>
-          </g>
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-function ProfileButton({ onClick, user }: { onClick: () => void; user: UserData | null }) {
-  return (
-    <div className="absolute contents left-[135px] top-[340px]">
-      <button
-        onClick={onClick}
-        className="absolute bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#5B21B6] hover:to-[#7C3AED] transition-all duration-200 h-[33px] left-[135px] rounded-[28px] top-[340px] w-[125px] shadow-lg hover:shadow-xl transform hover:scale-105"
-        aria-label="プロフィールの変更"
-      />
-      <div
-        className="absolute font-bold leading-[0] left-[146px] text-white text-[11px] text-left text-nowrap top-[350px] tracking-[0.55px] pointer-events-none"
-      >
-        <p className="block leading-[normal] whitespace-pre">
-          {user?.username || 'プロフィール'}
-        </p>
-      </div>
-    </div>
-  );
-}
+// 画像パスの設定
+const backgroundImages = {
+  diary: '../public/assets/notebook.jpg', // ペンの画像
+  chat: '../public/assets/chat.jpg',   // 会話の画像
+  emotion: '../public/assets/wordcloud.jpg', // ワードクラウド画像
+  archive: '../public/assets/history.jpg'    // 本の画像
+};
 
 function LogoutButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="absolute contents left-[135px] top-[377px]">
-      <button
-        onClick={onClick}
-        className="absolute bg-gradient-to-r from-[#EF4444] to-[#F59E0B] hover:from-[#DC2626] hover:to-[#D97706] transition-all duration-200 h-[33px] left-[135px] rounded-[28px] top-[377px] w-[125px] shadow-lg hover:shadow-xl transform hover:scale-105"
-        aria-label="ログアウト"
-      />
-      <div
-        className="absolute font-bold leading-[0] left-[170px] text-white text-[11px] text-left text-nowrap top-[387px] tracking-[0.55px] pointer-events-none"
-      >
-        <p className="block leading-[normal] whitespace-pre">
-          ログアウト
-        </p>
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      className="absolute top-6 left-6 z-10 bg-black/20 backdrop-blur-sm rounded-full p-3 hover:bg-black/30 transition-all duration-200 group"
+      aria-label="ログアウト"
+    >
+      <svg className="w-6 h-6 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+    </button>
   );
 }
 
-//ホーム画面
-function HomeScreen({ onNavigate, user }: { onNavigate: (action: string) => void; user: UserData | null }) {
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+function UserProfileButton({ user, onClick }: { user: UserData | null; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="absolute top-6 right-6 z-10 bg-black/20 backdrop-blur-sm rounded-full p-2 hover:bg-black/30 transition-all duration-200 group flex items-center space-x-3"
+      aria-label="プロフィール"
+    >
+      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 p-0.5">
+        <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+          {user?.profileImage ? (
+            <img
+              src={user.profileImage}
+              alt="プロフィール画像"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+              {user?.username?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          )}
+        </div>
+      </div>
+      <span className="text-white font-medium pr-2 group-hover:scale-105 transition-transform">
+        {user?.username || 'User'}
+      </span>
+    </button>
+  );
+}
 
-  const handleButtonClick = (action: string) => {
-    setSelectedAction(action);
-    if (action === '日記作成') {
-      onNavigate('diary');
-    } else if (action === 'メッセージ') {
-      onNavigate('chat');
-    } else if (action === '感情記録') {
-      onNavigate('emotion');
-    } else if (action === 'アーカイブ') {
-      onNavigate('archive');
-    } else if (action === 'ログアウト') {
-      onNavigate('logout');
-    } else {
-      console.log(`${action} ボタンがクリックされました`);
+function MenuCard({
+  title,
+  backgroundImage,
+  onClick,
+  className = ""
+}: {
+  title: string;
+  backgroundImage: string;
+  onClick: () => void;
+  className?: string;
+}) {
+  // 各カードに異なるグラデーションカラーを設定
+  const getGradientOverlay = (title: string) => {
+    switch (title) {
+      case 'Daialy':
+        return 'bg-gradient-to-br from-emerald-500/70 via-orange-600/60 to-cyan-700/50';
+      case 'Chat':
+        return 'bg-gradient-to-br from-violet-500/70 via-pink-600/60 to-indigo-700/50';
+      case 'WordCloud':
+        return 'bg-gradient-to-br from-rose-500/70 via-purple-600/60 to-red-700/50';
+      case 'History':
+        return 'bg-gradient-to-br from-amber-500/70 via-blue-600/60 to-yellow-700/50';
+      default:
+        return 'bg-gradient-to-br from-slate-500/70 via-gray-600/60 to-zinc-700/50';
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] relative size-full" data-name="ホーム画面">
+    <button
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-2xl h-48 transition-all duration-300 hover:scale-105 hover:shadow-2xl group ${className}`}
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      {/* ぼかし効果のための背景画像レイヤー */}
       <div
-        className="absolute font-bold h-[81px] leading-[0] left-[68px] text-transparent bg-gradient-to-r from-[#6366F1] to-[#EC4899] bg-clip-text text-[50px] text-left top-[99px] tracking-[2.5px] w-[292px]"
-      >
-        <p className="block leading-[normal]">
-          Welcome{user?.username && `, ${user.username}`}！
-        </p>
+        className="absolute inset-0 bg-cover bg-center filter blur-sm scale-110"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      />
+
+      {/* カラーグラデーションオーバーレイ */}
+      <div className={`absolute inset-0 ${getGradientOverlay(title)} group-hover:opacity-30 transition-all duration-300`} />
+
+      {/* 追加の深みのためのオーバーレイ */}
+      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300" />
+
+      {/* タイトル */}
+      <div className="absolute inset-0 flex items-center justify-center z-10">
+        <h2 className="text-white text-4xl font-bold tracking-wider transform group-hover:scale-110 transition-all duration-300 drop-shadow-lg">
+          {title}
+        </h2>
       </div>
-      
-      <GenericAvatar user={user} />
-      <EditButton onClick={() => handleButtonClick('日記作成')} />
-      <HeartButton onClick={() => handleButtonClick('感情記録')} />
-      <ArchiveButton onClick={() => handleButtonClick('アーカイブ')} />
-      <MessageButton onClick={() => handleButtonClick('メッセージ')} />
-      <ProfileButton onClick={() => handleButtonClick('プロフィール変更')} user={user} />
-      <LogoutButton onClick={() => handleButtonClick('ログアウト')} />
-      
-      {selectedAction && !['日記作成', 'メッセージ', '感情記録', 'アーカイブ', 'ログアウト'].includes(selectedAction) && (
-        <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-3 border-l-4 border-[#6366F1]">
-          <p className="text-sm text-gray-700">{selectedAction} 機能が選択されました</p>
+
+      {/* ホバー時の光沢効果 */}
+      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/5 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </button>
+  );
+}
+
+function ProfileModal({ user, onClose }: { user: UserData | null; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">プロフィール</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 text-2xl"
+          >
+            ×
+          </button>
         </div>
+
+        <div className="text-center mb-6">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 p-1 mx-auto mb-4">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+              {user?.profileImage ? (
+                <img
+                  src={user.profileImage}
+                  alt="プロフィール画像"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-2xl">
+                  {user?.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ユーザー名</label>
+            <p className="text-lg text-gray-900">{user?.username || 'Unknown User'}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">メールアドレス</label>
+            <p className="text-lg text-gray-900">{user?.email || 'No email provided'}</p>
+          </div>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200"
+        >
+          閉じる
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ホーム画面
+// ホーム画面
+function HomeScreen({ onNavigate, user }: { onNavigate: (action: string) => void; user: UserData | null }) {
+  const [showProfile, setShowProfile] = useState(false);
+
+  const handleMenuClick = (screen: string) => {
+    onNavigate(screen);
+  };
+
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
+  const handleLogoutClick = () => {
+    onNavigate('logout');
+  };
+
+  return (
+    <div className="h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-purple-50 flex flex-col">
+      {/* 拡張されたナビゲーションヘッダー */}
+      <div className="relative h-32 flex-shrink-0">
+        <LogoutButton onClick={handleLogoutClick} />
+        <UserProfileButton user={user} onClick={handleProfileClick} />
+
+        {/* ウェルカムメッセージ*/}
+        <div className="flex items-center justify-center h-full px-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+              Welcome{user?.username && `, ${user.username}`}!
+            </h1>
+            <p className="text-gray-600 text-sm">
+              今日も素敵な一日を記録しましょう
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* マージンを持つフルスクリーンメニューカード */}
+      <div className="flex-1 flex flex-col px-4 pb-4 space-y-2">
+        <MenuCard
+          title="Daialy"
+          backgroundImage={backgroundImages.diary}
+          onClick={() => handleMenuClick('diary')}
+          className="flex-1 rounded-lg"
+        />
+
+        <MenuCard
+          title="Chat"
+          backgroundImage={backgroundImages.chat}
+          onClick={() => handleMenuClick('chat')}
+          className="flex-1 rounded-lg"
+        />
+
+        <MenuCard
+          title="WordCloud"
+          backgroundImage={backgroundImages.emotion}
+          onClick={() => handleMenuClick('emotion')}
+          className="flex-1 rounded-lg"
+        />
+
+        <MenuCard
+          title="History"
+          backgroundImage={backgroundImages.archive}
+          onClick={() => handleMenuClick('archive')}
+          className="flex-1 rounded-lg"
+        />
+      </div>
+
+      {/* プロフィールモーダル */}
+      {showProfile && (
+        <ProfileModal
+          user={user}
+          onClose={() => setShowProfile(false)}
+        />
       )}
     </div>
   );
@@ -283,12 +270,16 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
 
   useEffect(() => {
-    // ローカルストレージからユーザー情報を取得
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setCurrentUser(JSON.parse(savedUser));
-      setCurrentScreen('home');
-    }
+    // メモリ内のユーザー情報を確認（ここでは実際のlocalStorageは使用できないため、デモ用のユーザーを設定）
+    const demoUser: UserData = {
+      username: "Demo User",
+      email: "demo@example.com",
+      password: "demo123",
+      profileImage: null
+    };
+
+    setCurrentUser(demoUser);
+    setCurrentScreen('home');
   }, []);
 
   const handleLogin = (userData: UserData) => {
@@ -297,7 +288,6 @@ export default function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
     setCurrentUser(null);
     setCurrentScreen('login');
   };
@@ -313,6 +303,8 @@ export default function App() {
       setCurrentScreen('emotion');
     } else if (screen === 'archive') {
       setCurrentScreen('archive');
+    } else if (screen === 'profile') {
+      setCurrentScreen('profile');
     }
   };
 

@@ -1,253 +1,237 @@
-import svgPaths from "../../imports/svg-w7nub29lr1";
 import { useState } from "react";
 
-type Emotion = 'happy' | 'neutral' | 'sad' | null;
+type Emotion =
+  | 'happy'
+  | 'angry'
+  | 'sad'
+  | 'excited'
+  | 'calm'
+  | 'embarrassed'
+  | 'gratitude'
+  | 'alone'
+  | null;
 
-function Smile({ isSelected, onClick }: { isSelected: boolean; onClick: () => void }) {
+// SVG paths (simplified for demo)
+const svgPaths = {
+  smile: "M16 20s2-4 8-4 8 4 8 4M8 14h.01M24 14h.01",
+  angry: "M16 20h8M8 14h.01M24 14h.01",
+  frown: "M16 20s-2-4-8-4-8 4-8 4M8 14h.01M24 14h.01",
+  arrowLeft: "M15 18l-6-6 6-6",
+  drag: "M3 3l18 18M3 21l18-18"
+};
+
+function EmotionButton({
+  emotion,
+  isSelected,
+  onClick,
+  emoji,
+  label,
+  selectedMessage
+}: {
+  emotion: Emotion;
+  isSelected: boolean;
+  onClick: () => void;
+  emoji: string;
+  label: string;
+  selectedMessage: string;
+}) {
+  const colors = {
+    happy: { bg: 'bg-emerald-500', border: 'border-emerald-500', hover: 'hover:bg-emerald-600' },
+    neutral: { bg: 'bg-amber-500', border: 'border-amber-500', hover: 'hover:bg-amber-600' },
+    sad: { bg: 'bg-rose-500', border: 'border-rose-500', hover: 'hover:bg-rose-600' }
+  };
+
+  const colorScheme = colors[emotion as keyof typeof colors] || colors.neutral;
+
   return (
-    <div className="absolute left-0 size-12 top-0" data-name="Smile">
-      <button 
+    <div className="flex flex-col items-center gap-3">
+      <button
         onClick={onClick}
-        className="block size-full transition-all duration-200 hover:scale-110 active:scale-95"
-        aria-label="嬉しい気持ち"
+        className={`
+          flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-300
+          min-w-24 sm:w-28
+          ${isSelected
+            ? `${colorScheme.bg} ${colorScheme.border} text-white shadow-lg scale-110`
+            : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400 hover:scale-105 hover:shadow-md'
+          }
+          transform active:scale-95 focus:outline-none focus:ring-4 focus:ring-opacity-50
+          ${isSelected ? 'focus:ring-emerald-300' : 'focus:ring-blue-300'}
+        `}
+        aria-label={label}
       >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 48 48"
-        >
-          <g id="Smile">
-            <circle
-              cx="24"
-              cy="24" 
-              r="22"
-              fill={isSelected ? "#10B981" : "#F1F5F9"}
-              stroke={isSelected ? "#10B981" : "#D1D5DB"}
-              strokeWidth="2"
-            />
-            <path
-              d={svgPaths.p237a4200}
-              id="Icon"
-              stroke={isSelected ? "white" : "#6B7280"}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          </g>
-        </svg>
+        <div className="text-2xl mb-1">{emoji}</div>
+        <div className="text-xs font-medium">{label}</div>
       </button>
+      {isSelected && (
+        <div className="text-xs text-center text-gray-600 animate-fade-in px-2 max-w-20">
+          {selectedMessage}
+        </div>
+      )}
     </div>
   );
 }
 
-function Meh({ isSelected, onClick }: { isSelected: boolean; onClick: () => void }) {
-  return (
-    <div className="absolute left-[65px] size-12 top-0" data-name="Meh">
-      <button 
-        onClick={onClick}
-        className="block size-full transition-all duration-200 hover:scale-110 active:scale-95"
-        aria-label="普通の気持ち"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 48 48"
-        >
-          <g id="Meh">
-            <circle
-              cx="24"
-              cy="24" 
-              r="22"
-              fill={isSelected ? "#F59E0B" : "#F1F5F9"}
-              stroke={isSelected ? "#F59E0B" : "#D1D5DB"}
-              strokeWidth="2"
-            />
-            <path
-              d={svgPaths.p1dd46000}
-              id="Icon"
-              stroke={isSelected ? "white" : "#6B7280"}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          </g>
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-function Frown({ isSelected, onClick }: { isSelected: boolean; onClick: () => void }) {
-  return (
-    <div className="absolute left-[130px] size-12 top-0" data-name="Frown">
-      <button 
-        onClick={onClick}
-        className="block size-full transition-all duration-200 hover:scale-110 active:scale-95"
-        aria-label="悲しい気持ち"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 48 48"
-        >
-          <g id="Frown">
-            <circle
-              cx="24"
-              cy="24" 
-              r="22"
-              fill={isSelected ? "#EF4444" : "#F1F5F9"}
-              stroke={isSelected ? "#EF4444" : "#D1D5DB"}
-              strokeWidth="2"
-            />
-            <path
-              d={svgPaths.p33775800}
-              id="Icon"
-              stroke={isSelected ? "white" : "#6B7280"}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="3"
-            />
-          </g>
-        </svg>
-      </button>
-    </div>
-  );
-}
-
-function EmotionSelector({ selectedEmotion, onEmotionSelect }: { 
-  selectedEmotion: Emotion; 
+function EmotionSelector({ selectedEmotion, onEmotionSelect }: {
+  selectedEmotion: Emotion;
   onEmotionSelect: (emotion: Emotion) => void;
 }) {
   return (
-    <div className="h-12 relative shrink-0 w-[178px]">
-      <div className="absolute contents left-0 top-0">
-        <Smile 
-          isSelected={selectedEmotion === 'happy'} 
-          onClick={() => onEmotionSelect('happy')} 
+    <div className="w-full justify-content-center">
+      <h3 className="text-lg font-medium text-gray-700 text-center mb-6">
+        今日の気持ちを選んでください
+      </h3>
+      <div className="grid grid-cols-4 gap-4 justify-items-center">
+        <EmotionButton
+          emotion="happy"
+          isSelected={selectedEmotion === 'happy'}
+          onClick={() => onEmotionSelect('happy')}
+          emoji="😊"
+          label="嬉しい"
+          selectedMessage="素晴らしい！"
         />
-        <Meh 
-          isSelected={selectedEmotion === 'neutral'} 
-          onClick={() => onEmotionSelect('neutral')} 
+        <EmotionButton
+          emotion="angry"
+          isSelected={selectedEmotion === 'angry'}
+          onClick={() => onEmotionSelect('angry')}
+          emoji="😠"
+          label="怒り"
+          selectedMessage="冷静になって！"
         />
-        <Frown 
-          isSelected={selectedEmotion === 'sad'} 
-          onClick={() => onEmotionSelect('sad')} 
+        <EmotionButton
+          emotion="sad"
+          isSelected={selectedEmotion === 'sad'}
+          onClick={() => onEmotionSelect('sad')}
+          emoji="😢"
+          label="悲しい"
+          selectedMessage="大丈夫ですよ"
+        />
+        <EmotionButton
+          emotion="excited"
+          isSelected={selectedEmotion === 'excited'}
+          onClick={() => onEmotionSelect('excited')}
+          emoji="🤩"
+          label="興奮"
+          selectedMessage="イェーイ！"
+        />
+        <EmotionButton
+          emotion="calm"
+          isSelected={selectedEmotion === 'calm'}
+          onClick={() => onEmotionSelect('calm')}
+          emoji="😌"
+          label="落ち着き"
+          selectedMessage="いいね！"
+        />
+        <EmotionButton
+          emotion="embarrassed"
+          isSelected={selectedEmotion === 'embarrassed'}
+          onClick={() => onEmotionSelect('embarrassed')}
+          emoji="😰"
+          label="不安"
+          selectedMessage="大丈夫ですよ"
+        />
+        <EmotionButton
+          emotion="gratitude"
+          isSelected={selectedEmotion === 'gratitude'}
+          onClick={() => onEmotionSelect('gratitude')}
+          emoji="🙏"
+          label="感謝"
+          selectedMessage="大事な気持ちですね"
+        />
+        <EmotionButton
+          emotion="alone"
+          isSelected={selectedEmotion === 'alone'}
+          onClick={() => onEmotionSelect('alone')}
+          emoji="😔"
+          label="寂しい"
+          selectedMessage="私がついています"
         />
       </div>
     </div>
   );
 }
 
-function Textarea({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+function DiaryTextarea({ value, onChange }: {
+  value: string;
+  onChange: (value: string) => void
+}) {
   return (
-    <div
-      className="bg-white min-h-20 min-w-60 relative rounded-lg shrink-0 w-full shadow-sm border border-gray-200 focus-within:border-[#6366F1] focus-within:ring-2 focus-within:ring-[#6366F1]/20 transition-all duration-200"
-      data-name="Textarea"
-    >
-      <div className="min-h-inherit min-w-inherit overflow-clip relative size-full">
-        <div className="box-border content-stretch flex flex-row items-start justify-start min-h-inherit min-w-inherit px-4 py-3 relative w-full">
-          <textarea
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="今日は..."
-            className="basis-0 font-['Inter:Regular',_'Noto_Sans_JP:Regular',_sans-serif] font-normal grow leading-[1.4] min-h-[80px] min-w-px not-italic relative shrink-0 text-[#1e1e1e] text-[16px] text-left resize-none outline-none bg-transparent"
-          />
-          <div
-            className="absolute bottom-[6.019px] right-[5.019px] size-[6.627px]"
-            data-name="Drag"
-          >
-            <div
-              className="absolute bottom-[-5.335%] left-[-5.335%] right-[-5.335%] top-[-5.335%]"
-              style={
-                {
-                  "--stroke-0":
-                    "rgba(179.000004529953, 179.000004529953, 179.000004529953, 1)",
-                } as React.CSSProperties
-              }
-            >
-              <svg
-                className="block size-full"
-                fill="none"
-                preserveAspectRatio="none"
-                role="presentation"
-                viewBox="0 0 8 8"
-              >
-                <path
-                  d={svgPaths.p508fbdc}
-                  id="Drag"
-                  stroke="var(--stroke-0, #B3B3B3)"
-                />
-              </svg>
-            </div>
-          </div>
+    <div className="w-full max-w-md">
+      <label className="block text-sm font-medium text-gray-700 mb-3">
+        今日はどんな1日でしたか？
+      </label>
+      <div className="relative">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="今日は..."
+          className="
+            w-full min-h-32 p-4 border-2 border-gray-200 rounded-xl
+            bg-white/80 backdrop-blur-sm
+            focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100
+            transition-all duration-300 resize-none outline-none
+            placeholder-gray-400 text-gray-800
+            shadow-sm hover:shadow-md focus:shadow-lg
+          "
+          rows={4}
+        />
+        <div className="absolute bottom-3 right-3 text-gray-400">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 16 16" stroke="currentColor">
+            <path d={svgPaths.drag} strokeWidth="1.5" />
+          </svg>
         </div>
       </div>
     </div>
   );
 }
 
-function TextareaField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+function SubmitButton({ onClick, disabled }: {
+  onClick: () => void;
+  disabled: boolean
+}) {
   return (
-    <div
-      className="box-border content-stretch flex flex-col gap-2 h-[217px] items-start justify-start p-0 relative shrink-0 w-[299px]"
-      data-name="Textarea Field"
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        px-8 py-3 rounded-xl font-medium text-white text-sm
+        transition-all duration-300 transform
+        ${disabled
+          ? 'bg-gray-400 cursor-not-allowed opacity-60'
+          : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl'
+        }
+        focus:outline-none focus:ring-4 focus:ring-indigo-200
+      `}
     >
-      <div className="font-['Inter:Regular',_'Noto_Sans_JP:Regular',_sans-serif] font-normal leading-[0] not-italic relative shrink-0 text-[#374151] text-[16px] text-left w-full">
-        <p className="block leading-[1.4]">今日はどんな1日でしたか？</p>
-      </div>
-      <Textarea value={value} onChange={onChange} />
-    </div>
-  );
-}
-
-function SubmitButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
-  return (
-    <div className="h-10 relative shrink-0 w-[88px]">
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className="absolute bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#5B21B6] hover:to-[#7C3AED] disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:scale-100 rounded-lg h-10 w-[88px]"
-        data-name="Button"
-      >
-        <div className="box-border content-stretch flex flex-row gap-2 items-center justify-center overflow-clip p-[12px] relative">
-          <div className="font-['Inter:Regular',_'Noto_Sans_JP:Regular',_sans-serif] font-normal leading-[0] not-italic relative shrink-0 text-[16px] text-left text-white text-nowrap">
-            <p className="block leading-none whitespace-pre">投稿する</p>
-          </div>
-        </div>
-      </button>
-    </div>
+      投稿する
+    </button>
   );
 }
 
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="absolute bg-gradient-to-r from-[#EC4899] to-[#F59E0B] box-border content-stretch flex flex-row gap-2.5 h-[61px] items-center justify-start left-0 px-[13px] py-3 top-0 w-[390px] shadow-lg">
-      <button 
-        onClick={onClick}
-        className="h-9 w-[35px] transition-transform hover:scale-110 active:scale-95"
-        aria-label="戻る"
-      >
-        <svg
-          className="block size-full"
-          fill="none"
-          preserveAspectRatio="none"
-          viewBox="0 0 35 36"
+    <div className="absolute top-0 left-0 right-0 z-10">
+      <div className="bg-gradient-to-r from-pink-500 to-orange-400 px-4 py-3 shadow-lg">
+        <button
+          onClick={onClick}
+          className="
+            flex items-center justify-center w-10 h-10 rounded-full
+            bg-white/20 backdrop-blur-sm hover:bg-white/30
+            transition-all duration-200 transform hover:scale-110 active:scale-95
+            focus:outline-none focus:ring-2 focus:ring-white/50
+          "
+          aria-label="戻る"
         >
-          <g id="Arrow left">
-            <path
-              d={svgPaths.p34d70400}
-              id="Icon"
-              stroke="white"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="4"
-            />
-          </g>
-        </svg>
-      </button>
+          <svg
+            className="w-6 h-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d={svgPaths.arrowLeft} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
@@ -267,35 +251,49 @@ export default function DiaryEntry({ onBack }: { onBack: () => void }) {
   const isSubmitDisabled = !selectedEmotion || !diaryText.trim();
 
   return (
-    <div className="relative size-full bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]" data-name="日記投稿画面">
-      <div
-        className="absolute bg-white/80 backdrop-blur-sm box-border content-stretch flex flex-col gap-2.5 h-[844px] items-center justify-center left-0 overflow-clip p-[10px] top-0 w-[390px] shadow-lg border border-white/20 rounded-lg"
-        data-name="日記投稿画面"
-      >
-        <div className="mb-8">
-          <h2 className="text-center text-[#374151] mb-4">今日の気持ちを選んでください</h2>
-          <EmotionSelector 
-            selectedEmotion={selectedEmotion}
-            onEmotionSelect={setSelectedEmotion}
-          />
-        </div>
-        
-        <div className="box-border content-stretch flex flex-col gap-2.5 items-end justify-end px-9 py-0 relative shrink-0">
-          <TextareaField value={diaryText} onChange={setDiaryText} />
-        </div>
-        
-        <SubmitButton onClick={handleSubmit} disabled={isSubmitDisabled} />
-        
-        {selectedEmotion && (
-          <div className="mt-4 text-center text-sm text-gray-600">
-            {selectedEmotion === 'happy' && '🌟 素晴らしい気持ちですね！'}
-            {selectedEmotion === 'neutral' && '😌 平穏な1日でしたね'}
-            {selectedEmotion === 'sad' && '💙 辛い時もあります、大丈夫ですよ'}
-          </div>
-        )}
-      </div>
-      
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <BackButton onClick={onBack} />
+
+      {/* メインコンテンツ */}
+      <div className="pt-16 pb-8 px-4 min-h-screen flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-lg mx-auto w-full space-y-8">
+
+          {/* 感情選択セクション */}
+          <div className="w-full bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+            <EmotionSelector
+              selectedEmotion={selectedEmotion}
+              onEmotionSelect={setSelectedEmotion}
+            />
+          </div>
+
+          {/* テキスト入力セクション */}
+          <div className="w-full bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+            <DiaryTextarea value={diaryText} onChange={setDiaryText} />
+          </div>
+
+          {/* 投稿ボタン */}
+          <div className="w-full flex justify-center pt-4">
+            <SubmitButton onClick={handleSubmit} disabled={isSubmitDisabled} />
+          </div>
+        </div>
+      </div>
+
+      {/* 装飾的な背景要素 */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full opacity-20 animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-24 h-24 bg-gradient-to-br from-blue-200 to-indigo-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-5 w-16 h-16 bg-gradient-to-br from-yellow-200 to-orange-200 rounded-full opacity-20 animate-pulse delay-2000"></div>
+      </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
